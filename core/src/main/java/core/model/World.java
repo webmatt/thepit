@@ -47,11 +47,11 @@ public class World {
 		}
 		int x2 = x + 2 * width;
 		int y2 = y + 2 * width;
-		if (x2 > level.getWidth())
+		if (x2 >= level.getWidth())
 		{
 			x2 = level.getWidth() - 1;
 		}
-		if (y2 > level.getHeight())
+		if (y2 >= level.getHeight())
 		{
 			y2 = level.getHeight() - 1;
 		}
@@ -78,8 +78,8 @@ public class World {
 	
 	private void createDemoWorld()
 	{
-		dude = new Dude(new Vector2(7, 2));
 		level = new Level();
+		dude = new Dude(level.getStartPosition());
 	}
 
 }

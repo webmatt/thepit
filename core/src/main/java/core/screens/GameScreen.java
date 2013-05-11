@@ -5,12 +5,15 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.utils.Logger;
 
 import core.controller.DudeController;
 import core.model.World;
 import core.view.WorldRenderer;
 
 public class GameScreen implements Screen, InputProcessor {
+	
+	private static final Logger logger = new Logger("ThePit", Logger.DEBUG);
 
 	private World world;
 	private WorldRenderer renderer;
@@ -96,9 +99,15 @@ public class GameScreen implements Screen, InputProcessor {
 		{
 			controller.jumpReleased();
 		}
-		if (keycode == Keys.D)
+		
+		// Debug keys
+		if (keycode == Keys.NUM_1)
 		{
 			renderer.setDebug(!renderer.isDebug());
+		}
+		if (keycode == Keys.NUM_2)
+		{
+			logger.debug(controller.getDude().toString());
 		}
 		if (keycode == Keys.Q)
 		{

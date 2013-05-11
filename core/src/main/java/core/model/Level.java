@@ -1,12 +1,22 @@
 package core.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Logger;
 
 public class Level {
 
+	static int EMPTY = 0x00000000;
+	static int START_POSITION = 0xff0000ff; // RED
+
+	private static final Logger logger = new Logger("Level", Logger.DEBUG);
 	private int width;
 	private int height;
+	private Vector2 startPosition;
 	private Block[][] blocks;
 
 	public int getWidth() {
@@ -32,18 +42,68 @@ public class Level {
 	public void setBlocks(Block[][] blocks) {
 		this.blocks = blocks;
 	}
-	
-	public Block get(int x, int y)
-	{
+
+	public Block get(int x, int y) {
 		return blocks[x][y];
 	}
-	
+
+	public Vector2 getStartPosition() {
+		return startPosition;
+	}
+
 	public Level() {
-		loadDemoWorld();
+		// loadDemoWorld();
+		loadImageWorld();
+	}
+
+	private void loadImageWorld() {
+		Pixmap pm = new Pixmap(Gdx.files.internal("maps/02.png"));
+		width = pm.getWidth();
+		height = pm.getHeight();
+		logger.debug("Map width: " + width);
+		logger.debug("Map height: " + height);
+		blocks = new Block[width][height];
+		int flipY, color;
+		Set<Integer> colors = new HashSet<Integer>();
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < width; y++) {
+				color = pm.getPixel(x, y);
+				colors.add(color);
+				if (color != EMPTY) {
+					flipY = height - 1 - y; // Pixmap starts topleft, our cam starts bottom left, so we gotta flip it
+					if (color == START_POSITION)
+					{
+						if (startPosition != null)
+						{
+							logger.error("Start position already set, but found another one (why?)");
+						}
+						else
+						{
+							startPosition = new Vector2(x, flipY);
+						}
+					}
+					else
+					{
+						blocks[x][flipY] = new Block(new Vector2(x, flipY));
+					}
+				}
+			}
+		}
+
+		if (getStartPosition() == null) {
+			logger.error("No start position found in map");
+			startPosition = new Vector2(0,0);
+//			Gdx.app.exit();
+		}
+
+		String temp = "Different colors in map: ";
+		for (Integer c : colors) {
+			temp += "0x" + Integer.toHexString(c) + " ";
+		}
+		logger.debug(temp);
 	}
 
 	private void loadDemoWorld() {
-		// TODO: I don't have to mention to make it dynamically, do i?
 		width = 10;
 		height = 7;
 		blocks = new Block[width][height];

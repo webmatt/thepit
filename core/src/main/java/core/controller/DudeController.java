@@ -52,6 +52,11 @@ public class DudeController {
 		keys.put(Keys.RIGHT, false);
 		keys.put(Keys.JUMP, false);
 	}
+	
+	public Dude getDude()
+	{
+		return dude;
+	}
 
 	public DudeController(World world) {
 		this.world = world;

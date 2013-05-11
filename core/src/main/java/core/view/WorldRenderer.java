@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Logger;
 
 import core.model.Block;
@@ -20,9 +21,9 @@ import core.model.World;
 public class WorldRenderer {
 	private static final Logger logger = new Logger(
 			WorldRenderer.class.getCanonicalName(), Logger.DEBUG);
-	private static final float CAMERA_WIDTH = 10f;
-	private static final float CAMERA_HEIGHT = 7f;
-	private static final float RUNNING_FRAME_DURATION = 0.06f;
+	private static final float CAMERA_WIDTH = 16f;
+	private static final float CAMERA_HEIGHT = 16f;
+	private static final float RUNNING_FRAME_DURATION = 0.10f;
 
 	private World world;
 	private OrthographicCamera cam;
@@ -51,8 +52,8 @@ public class WorldRenderer {
 	public void setSize(int w, int h) {
 		this.width = w;
 		this.height = h;
-		ppuX = (float) width / CAMERA_WIDTH;
-		ppuY = (float) height / CAMERA_HEIGHT;
+		ppuX = (float) w / CAMERA_WIDTH;
+		ppuY = (float) h / CAMERA_HEIGHT;
 	}
 
 	public boolean isDebug() {
@@ -66,8 +67,6 @@ public class WorldRenderer {
 	public WorldRenderer(World world, boolean debug) {
 		this.world = world;
 		this.cam = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
-		this.cam.position.set(CAMERA_WIDTH / 2f, CAMERA_HEIGHT / 2f, 0);
-		this.cam.update();
 		setDebug(debug);
 		spriteBatch = new SpriteBatch();
 		loadTextures();
@@ -104,6 +103,9 @@ public class WorldRenderer {
 	}
 
 	public void render() {
+		updateCam();
+
+		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
 		drawBlocks();
 		drawDude();
@@ -112,12 +114,42 @@ public class WorldRenderer {
 			drawDebug();
 		}
 	}
+	
+	/**
+	 * Updates the cameras position. (Currently focuses on the dude, maybe will change)
+	 */
+	private void updateCam()
+	{
+		float x = world.getDude().x;
+		float y = world.getDude().y;
+		float width_half = (CAMERA_WIDTH / 2);
+		float height_half = (CAMERA_HEIGHT / 2);
+		if ((x - width_half) < 0)
+		{
+			x = 0 + width_half;
+		}
+		else if ((x + width_half) > world.getLevel().getWidth())
+		{
+			x = world.getLevel().getWidth() - width_half;
+		}
+		if ((y - height_half) < 0)
+		{
+			y = 0 + height_half;
+		}
+		else if ((y + height_half) > world.getLevel().getHeight())
+		{
+			y = world.getLevel().getHeight() - height_half;
+		}
+		
+		cam.position.set(x, y, 0);
+		cam.update();
+	}
 
 	private void drawBlocks() {
-		for (Block block : world.getDrawableBlocks((int) CAMERA_WIDTH, (int) CAMERA_HEIGHT)) {
-			spriteBatch.draw(blockTexture, block.x * ppuX,
-					block.y * ppuY, Block.SIZE * ppuX, Block.SIZE
-							* ppuY);
+		for (Block block : world.getDrawableBlocks((int) CAMERA_WIDTH,
+				(int) CAMERA_HEIGHT)) {
+			spriteBatch.draw(blockTexture, block.x, block.y, block.width,
+					block.height);
 		}
 	}
 
@@ -136,38 +168,36 @@ public class WorldRenderer {
 				dudeFrame = dude.isFacingLeft() ? dudeFallLeft : dudeFallRight;
 			}
 		}
-		spriteBatch
-				.draw(dudeFrame, dude.x * ppuX,
-						dude.y * ppuY, Dude.SIZE * ppuX,
-						Dude.SIZE * ppuY);
+		spriteBatch.draw(dudeFrame, dude.x, dude.y, dude.width, dude.height);
 	}
 
 	private void drawDebug() {
 		debugRenderer.setProjectionMatrix(cam.combined);
-		
+
 		debugRenderer.begin(ShapeType.Line);
-		
+
 		// render blocks
-		for (Block block : world.getDrawableBlocks((int) CAMERA_WIDTH, (int) CAMERA_HEIGHT)) {
+		for (Block block : world.getDrawableBlocks((int) CAMERA_WIDTH,
+				(int) CAMERA_HEIGHT)) {
 			debugRenderer.setColor(new Color(1, 0, 0, 1));
 			debugRenderer.rect(block.x, block.y, block.width, block.height);
 		}
-		
+
 		// render The Dude
 		Dude dude = world.getDude();
 		debugRenderer.setColor(new Color(0, 1, 0, 1));
 		debugRenderer.rect(dude.x, dude.y, dude.width, dude.height);
 		debugRenderer.end();
-		
+
 		debugRenderer.begin(ShapeType.Filled);
-		
+
 		// render collision blocks
 		debugRenderer.setColor(1, 1, 1, 1);
-		for (Rectangle collRect : world.getCollisionRects())
-		{
-			debugRenderer.rect(collRect.x, collRect.y, collRect.width, collRect.height);
+		for (Rectangle collRect : world.getCollisionRects()) {
+			debugRenderer.rect(collRect.x, collRect.y, collRect.width,
+					collRect.height);
 		}
 		debugRenderer.end();
-				
+
 	}
 }
