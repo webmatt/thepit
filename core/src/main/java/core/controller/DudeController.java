@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Pool;
 import core.model.Block;
 import core.model.Dude;
 import core.model.Dude.State;
+import core.model.Item;
 import core.model.World;
 
 public class DudeController {
@@ -107,6 +108,8 @@ public class DudeController {
 				dude.getAcceleration().y);
 
 		checkCollisionWithBlocks(delta);
+		
+		checkCollisionWithItems();
 
 		if (dude.getAcceleration().x == 0)
 		{
@@ -219,6 +222,33 @@ public class DudeController {
 		// unscale velocity
 		dude.getVelocity().scl(1 / delta);
 	}
+	
+	private void checkCollisionWithItems()
+	{
+		// Clear (potential) collision item from previous frame
+		world.setCollisionItem(null);
+		
+		int x = (int) Math.floor(dude.x);
+		int y = (int) Math.floor(dude.y);
+		
+		if (x < 0 || y < 0)
+		{
+			// I don't know why, but if you move the application window around sometimes
+			// the dudes y gets below 0
+			return;
+		}
+		
+		// Check if the block the dude is walking in has an item
+		Item item = world.getLevel().getItem(x, y);
+		if (item != null)
+		{
+			// check if they collide
+			if (dude.overlaps(item))
+			{
+				world.setCollisionItem(item);
+			}
+		}
+	}
 
 	private void populateCollidableBlocks(int startX, int startY, int endX,
 			int endY) {
@@ -228,7 +258,7 @@ public class DudeController {
 				if (x >= 0 && x < world.getLevel().getWidth() 
 						&& y >= 0 && y < world.getLevel().getHeight())
 				{
-					collidable.add(world.getLevel().get(x, y));
+					collidable.add(world.getLevel().getBlock(x, y));
 				}
 			}
 		}

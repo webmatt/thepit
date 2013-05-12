@@ -12,7 +12,7 @@ import core.model.World;
 import core.view.WorldRenderer;
 
 public class GameScreen implements Screen, InputProcessor {
-	
+
 	private static final Logger logger = new Logger("ThePit", Logger.DEBUG);
 
 	private World world;
@@ -45,7 +45,7 @@ public class GameScreen implements Screen, InputProcessor {
 	@Override
 	public void show() {
 		world = new World();
-		renderer = new WorldRenderer(world, true);
+		renderer = new WorldRenderer(world, false);
 		controller = new DudeController(world);
 		Gdx.input.setInputProcessor(this);
 	}
@@ -70,16 +70,13 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		if (keycode == Keys.LEFT)
-		{
+		if (keycode == Keys.LEFT) {
 			controller.leftPressed();
 		}
-		if (keycode == Keys.RIGHT)
-		{
+		if (keycode == Keys.RIGHT) {
 			controller.rightPressed();
 		}
-		if (keycode == Keys.SPACE || keycode == Keys.UP)
-		{
+		if (keycode == Keys.SPACE || keycode == Keys.UP) {
 			controller.jumpPressed();
 		}
 		return true;
@@ -87,30 +84,23 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (keycode == Keys.LEFT)
-		{
+		if (keycode == Keys.LEFT) {
 			controller.leftReleased();
-		}
-		if (keycode == Keys.RIGHT)
-		{
+		} else if (keycode == Keys.RIGHT) {
 			controller.rightReleased();
-		}
-		if (keycode == Keys.SPACE || keycode == Keys.UP)
-		{
+		} else if (keycode == Keys.SPACE || keycode == Keys.UP) {
 			controller.jumpReleased();
 		}
-		
+
 		// Debug keys
-		if (keycode == Keys.NUM_1)
-		{
+		else if (keycode == Keys.NUM_1) {
 			renderer.setDebug(!renderer.isDebug());
-		}
-		if (keycode == Keys.NUM_2)
-		{
+		} else if (keycode == Keys.NUM_2) {
 			logger.debug(controller.getDude().toString());
-		}
-		if (keycode == Keys.Q)
-		{
+		} else if (keycode == Keys.NUM_3) {
+			world.getDude().x = world.getLevel().getStartPosition().x;
+			world.getDude().y = world.getLevel().getStartPosition().y;
+		} else if (keycode == Keys.Q) {
 			Gdx.app.exit();
 		}
 		return true;

@@ -5,6 +5,8 @@ import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
 
@@ -12,12 +14,14 @@ public class Level {
 
 	static int EMPTY = 0x00000000;
 	static int START_POSITION = 0xff0000ff; // RED
+	static int ITEM = 0x00ff00ff; // GREEN
 
 	private static final Logger logger = new Logger("Level", Logger.DEBUG);
 	private int width;
 	private int height;
 	private Vector2 startPosition;
 	private Block[][] blocks;
+	private Item[][] items;
 
 	public int getWidth() {
 		return width;
@@ -43,8 +47,20 @@ public class Level {
 		this.blocks = blocks;
 	}
 
-	public Block get(int x, int y) {
+	public Block getBlock(int x, int y) {
 		return blocks[x][y];
+	}
+	
+	public Item[][] getitems() {
+		return items;
+	}
+
+	public void setItems(Item[][] items) {
+		this.items = items;
+	}
+
+	public Item getItem(int x, int y) {
+		return items[x][y];
 	}
 
 	public Vector2 getStartPosition() {
@@ -57,12 +73,19 @@ public class Level {
 	}
 
 	private void loadImageWorld() {
+		
+
+		TextureAtlas atlas = new TextureAtlas(
+				Gdx.files.internal("images/textures/textures.pack"));
+		TextureRegion itemImage = atlas.findRegion("item_dummy");
+		
 		Pixmap pm = new Pixmap(Gdx.files.internal("maps/02.png"));
 		width = pm.getWidth();
 		height = pm.getHeight();
 		logger.debug("Map width: " + width);
 		logger.debug("Map height: " + height);
 		blocks = new Block[width][height];
+		items = new Item[width][height];
 		int flipY, color;
 		Set<Integer> colors = new HashSet<Integer>();
 		for (int x = 0; x < width; x++) {
@@ -81,6 +104,10 @@ public class Level {
 						{
 							startPosition = new Vector2(x, flipY);
 						}
+					}
+					else if (color == ITEM)
+					{
+						items[x][flipY] = new Item(new Vector2(x, flipY), itemImage);
 					}
 					else
 					{
