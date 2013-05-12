@@ -19,7 +19,8 @@ public class DudeController {
 		LEFT, RIGHT, JUMP
 	}
 
-	private static final Logger logger = new Logger("DudeController", Logger.DEBUG);
+	private static final Logger logger = new Logger("DudeController",
+			Logger.DEBUG);
 	private static final long LONG_JUMP_PRESS = 150l;
 	private static final float ACCELERATION = 30f;
 	private static final float GRAVITY = -20f;
@@ -53,9 +54,8 @@ public class DudeController {
 		keys.put(Keys.RIGHT, false);
 		keys.put(Keys.JUMP, false);
 	}
-	
-	public Dude getDude()
-	{
+
+	public Dude getDude() {
 		return dude;
 	}
 
@@ -108,11 +108,10 @@ public class DudeController {
 				dude.getAcceleration().y);
 
 		checkCollisionWithBlocks(delta);
-		
+
 		checkCollisionWithItems();
 
-		if (dude.getAcceleration().x == 0)
-		{
+		if (dude.getAcceleration().x == 0) {
 			dude.getVelocity().x *= DAMP;
 		}
 		// apply damping to halt The Dude nicely
@@ -153,34 +152,35 @@ public class DudeController {
 		}
 
 		populateCollidableBlocks(startX, startY, endX, endY);
-		
+
 		// simulate the dudes movement on the X axis
 		dudeRect.x += dude.getVelocity().x;
-		
+
 		world.getCollisionRects().clear();
-		
-		for (Block block : collidable)
-		{
-			if (block == null) continue;
-			if (dudeRect.overlaps(block))
-			{
-//				if (dude.getVelocity().x < 0)
-//				{
-//					dude.getPosition().x = (block.getBounds().x + block.getBounds().width + World.DELTA);
-//				}
-//				else
-//				{
-//					dude.getPosition().x = (block.getBounds().x - dude.getBounds().width - World.DELTA);
-//				}
+
+		for (Block block : collidable) {
+			if (block == null)
+				continue;
+			if (dudeRect.overlaps(block)) {
+				// if (dude.getVelocity().x < 0)
+				// {
+				// dude.getPosition().x = (block.getBounds().x +
+				// block.getBounds().width + World.DELTA);
+				// }
+				// else
+				// {
+				// dude.getPosition().x = (block.getBounds().x -
+				// dude.getBounds().width - World.DELTA);
+				// }
 				dude.getVelocity().x = 0;
 				world.getCollisionRects().add(block);
 				break;
 			}
 		}
-		
+
 		// reset the position on the X axis
 		dudeRect.x = dude.x;
-		
+
 		// Now the same thing again for the Y axis
 		startX = (int) dudeRect.x;
 		endX = (int) (dudeRect.x + dudeRect.width);
@@ -191,21 +191,17 @@ public class DudeController {
 					+ dude.getVelocity().y);
 		}
 		populateCollidableBlocks(startX, startY, endX, endY);
-		
+
 		dudeRect.y += dude.getVelocity().y;
-		
-		for (Block block : collidable)
-		{
-			if (block == null) continue;
-			if (dudeRect.overlaps(block))
-			{
-				if (dude.getVelocity().y < 0)
-				{
+
+		for (Block block : collidable) {
+			if (block == null)
+				continue;
+			if (dudeRect.overlaps(block)) {
+				if (dude.getVelocity().y < 0) {
 					grounded = true;
 					dude.y = (block.y + block.height);
-				}
-				else
-				{
+				} else {
 					dude.y = (block.y - dude.height);
 				}
 				dude.getVelocity().y = 0;
@@ -213,39 +209,46 @@ public class DudeController {
 				break;
 			}
 		}
-		
+
 		rectPool.free(dudeRect);
-		
+
 		// update the dudes position
 		dude.add(dude.getVelocity());
-//		
+		//
 		// unscale velocity
 		dude.getVelocity().scl(1 / delta);
 	}
-	
-	private void checkCollisionWithItems()
-	{
+
+	private void checkCollisionWithItems() {
 		// Clear (potential) collision item from previous frame
 		world.setCollisionItem(null);
-		
+
 		int x = (int) Math.floor(dude.x);
 		int y = (int) Math.floor(dude.y);
-		
-		if (x < 0 || y < 0)
-		{
-			// I don't know why, but if you move the application window around sometimes
+
+		if (x < 0 || y < 0) {
+			// I don't know why, but if you move the application window around
+			// sometimes
 			// the dudes y gets below 0
 			return;
 		}
-		
+
 		// Check if the block the dude is walking in has an item
 		Item item = world.getLevel().getItem(x, y);
-		if (item != null)
-		{
+		if (item != null) {
 			// check if they collide
-			if (dude.overlaps(item))
-			{
+			if (dude.overlaps(item)) {
 				world.setCollisionItem(item);
+			}
+		} else {
+			// check item in the next block
+			x++;
+			Item item2 = world.getLevel().getItem(x, y);
+			if (item2 != null) {
+				// check if they collide
+				if (dude.overlaps(item2)) {
+					world.setCollisionItem(item2);
+				}
 			}
 		}
 	}
@@ -255,9 +258,8 @@ public class DudeController {
 		collidable.clear();
 		for (int x = startX; x <= endX; x++) {
 			for (int y = startY; y <= endY; y++) {
-				if (x >= 0 && x < world.getLevel().getWidth() 
-						&& y >= 0 && y < world.getLevel().getHeight())
-				{
+				if (x >= 0 && x < world.getLevel().getWidth() && y >= 0
+						&& y < world.getLevel().getHeight()) {
 					collidable.add(world.getLevel().getBlock(x, y));
 				}
 			}
