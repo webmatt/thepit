@@ -14,6 +14,7 @@ import core.view.WorldRenderer;
 public class GameScreen implements Screen, InputProcessor {
 
 	private static final Logger logger = new Logger("ThePit", Logger.DEBUG);
+	private static final float CLAMP_DELTA = 0.2f;
 
 	private World world;
 	private WorldRenderer renderer;
@@ -54,6 +55,10 @@ public class GameScreen implements Screen, InputProcessor {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+		// Clamp the delta time to prevent the dude falling through blocks when
+		// fps drops very low
+		delta = Math.min(CLAMP_DELTA, delta);
 
 		controller.update(delta);
 		renderer.render();
