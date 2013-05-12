@@ -67,7 +67,6 @@ public class Level {
 		return startPosition;
 	}
 
-	// coole äbnderung
 	public Level() {
 		// loadDemoWorld();
 		loadImageWorld();
