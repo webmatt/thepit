@@ -3,6 +3,7 @@ package core.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
@@ -101,6 +102,13 @@ public class DudeController {
 
 		// Initial vertical acceleration
 		dude.getAcceleration().y = GRAVITY;
+		
+		// Debug
+		if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.NUM_4))
+		{
+			dude.getAcceleration().y = -GRAVITY;
+		}
+		
 		dude.getAcceleration().scl(delta);
 
 		// apply acc to vel
