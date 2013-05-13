@@ -46,6 +46,12 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 		</profile>
+		<profile>
+			<id>android</id>
+			<modules>
+				<module>android</module>
+			</modules>
+		</profile>
 	</profiles>
 
 	<modules>

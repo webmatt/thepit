@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Logger;
 
 import core.model.Block;
@@ -117,6 +116,11 @@ public class WorldRenderer {
 		drawDude();
 		drawItemImage();
 		
+		if (isDebug())
+		{
+//			drawFps();
+		}
+		
 		spriteBatch.end();
 		
 		if (isDebug()) {
@@ -201,10 +205,10 @@ public class WorldRenderer {
 
 	private void drawFps()
 	{
-//		BitmapFont font = new BitmapFont();
-//		String fps = Gdx.graphics.getFramesPerSecond() + " fps";
-//		float width = font.getBounds(fps).width;
-//		font.draw(spriteBatch, fps, CAMERA_WIDTH - 1 - width, CAMERA_HEIGHT - 1);
+		BitmapFont font = new BitmapFont();
+		String fps = Gdx.graphics.getFramesPerSecond() + " fps";
+		float width = font.getBounds(fps).width;
+		font.draw(spriteBatch, fps, CAMERA_WIDTH - 1 - width, CAMERA_HEIGHT - 1);
 	}
 
 	private void drawDebug() {
