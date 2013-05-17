@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -22,9 +21,8 @@ import core.model.World;
 public class WorldRenderer {
 	private static final Logger logger = new Logger(
 			WorldRenderer.class.getCanonicalName(), Logger.DEBUG);
-	private static final float CAMERA_WIDTH = 16f;
-	private static final float CAMERA_HEIGHT = 16f;
 	private static final float RUNNING_FRAME_DURATION = 0.10f;
+	private static final float PPU = 30f; // Pixel per unit
 
 	private World world;
 	private OrthographicCamera cam;
@@ -39,6 +37,7 @@ public class WorldRenderer {
 	private TextureRegion blockTexture;
 	private TextureRegion itemTexture;
 	private TextureRegion dudeFrame;
+	private TextureRegion background;
 
 	/** Animations **/
 	private Animation walkLeftAnimation;
@@ -48,14 +47,18 @@ public class WorldRenderer {
 	private boolean debug = false;
 	private int width;
 	private int height;
-	private float ppuX; // pixels per unit on the X axis
-	private float ppuY; // pixels per unit on the Y axis
+	private float minY;
+	private float maxY;
 
 	public void setSize(int w, int h) {
 		this.width = w;
 		this.height = h;
-		ppuX = (float) w / CAMERA_WIDTH;
-		ppuY = (float) h / CAMERA_HEIGHT;
+		this.minY = height * 0.3f;
+		this.maxY = height * 0.7f;
+		logger.debug(String.valueOf(height));
+		logger.debug(String.valueOf(minY));
+		logger.debug(String.valueOf(maxY));
+		cam.setToOrtho(false, w, h);
 	}
 
 	public boolean isDebug() {
@@ -68,7 +71,8 @@ public class WorldRenderer {
 
 	public WorldRenderer(World world, boolean debug) {
 		this.world = world;
-		this.cam = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
+		this.cam = new OrthographicCamera();
+		setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		setDebug(debug);
 		spriteBatch = new SpriteBatch();
 		loadTextures();
@@ -103,6 +107,8 @@ public class WorldRenderer {
 		}
 		walkRightAnimation = new Animation(RUNNING_FRAME_DURATION,
 				walkRightFrames);
+
+		background = atlas.findRegion("background");
 	}
 
 	public void render() {
@@ -110,19 +116,19 @@ public class WorldRenderer {
 
 		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
-		
+
+		drawBackground();
 		drawBlocks();
 		drawItems();
 		drawDude();
 		drawItemImage();
-		
-		if (isDebug())
-		{
-//			drawFps();
+
+		if (isDebug()) {
+			// drawFps();
 		}
-		
+
 		spriteBatch.end();
-		
+
 		if (isDebug()) {
 			drawDebug();
 		}
@@ -133,38 +139,46 @@ public class WorldRenderer {
 	 * change)
 	 */
 	private void updateCam() {
-		float x = world.getDude().x;
-		float y = world.getDude().y;
-		float width_half = (CAMERA_WIDTH / 2);
-		float height_half = (CAMERA_HEIGHT / 2);
-		if ((x - width_half) < 0) {
-			x = 0 + width_half;
-		} else if ((x + width_half) > world.getLevel().getWidth()) {
-			x = world.getLevel().getWidth() - width_half;
+		float x = (world.getLevel().getWidth() * PPU) / 2.0f;
+		float y = cam.position.y;
+		// Calculate the dudes position on the screen
+		float dudeY = (world.getDude().y * PPU) - y + (height / 2.0f);
+
+		// Check if the dude reaches a boundary (currently 30 % from top resp.
+		// bottom9
+		if (dudeY < minY) {
+			y -= (minY - dudeY);
 		}
-		if ((y - height_half) < 0) {
-			y = 0 + height_half;
-		} else if ((y + height_half) > world.getLevel().getHeight()) {
-			y = world.getLevel().getHeight() - height_half;
+		if (dudeY > maxY) {
+			y += (dudeY - maxY);
 		}
+
+		// clamp the camera to bottom resp. top of the level
+		y = Math.min(y, (world.getLevel().getHeight() * PPU) - height / 2.0f);
+		y = Math.max(y, height / 2.0f);
 
 		cam.position.set(x, y, 0);
 		cam.update();
 	}
 
+	private void drawBackground() {
+//		spriteBatch.draw(background, cam.position.x - width / 2.0f,
+//				cam.position.y - height / 2.0f, width, height);
+	}
+
 	private void drawBlocks() {
-		for (Block block : world.getDrawableBlocks((int) CAMERA_WIDTH,
-				(int) CAMERA_HEIGHT)) {
-			spriteBatch.draw(blockTexture, block.x, block.y, block.width,
-					block.height);
+		for (Block block : world.getDrawableBlocks((int) (width / PPU),
+				(int) (height / PPU))) {
+			spriteBatch.draw(blockTexture, block.x * PPU, block.y * PPU,
+					block.width * PPU, block.height * PPU);
 		}
 	}
 
 	private void drawItems() {
-		for (Item item : world.getDrawableItems((int) CAMERA_WIDTH,
-				(int) CAMERA_HEIGHT)) {
-			spriteBatch.draw(itemTexture, item.x, item.y, item.width,
-					item.height);
+		for (Item item : world.getDrawableItems((int) (width / PPU),
+				(int) (height / PPU))) {
+			spriteBatch.draw(itemTexture, item.x * PPU, item.y * PPU,
+					item.width * PPU, item.height * PPU);
 		}
 	}
 
@@ -183,17 +197,18 @@ public class WorldRenderer {
 				dudeFrame = dude.isFacingLeft() ? dudeFallLeft : dudeFallRight;
 			}
 		}
-		spriteBatch.draw(dudeFrame, dude.x, dude.y, dude.width, dude.height);
+		spriteBatch.draw(dudeFrame, dude.x * PPU, dude.y * PPU, dude.width
+				* PPU, dude.height * PPU);
 	}
 
 	private void drawItemImage() {
 		Item item = world.getCollisionItem();
 		if (item != null) {
-			float width = CAMERA_WIDTH / 2; // Half the screen width
+			float height = this.height * 0.8f;
 			TextureRegion texture = item.getImage();
-			float ratio = ((float) texture.getRegionHeight())
-					/ ((float) texture.getRegionWidth());
-			float height = width * ratio;
+			float ratio = ((float) texture.getRegionWidth())
+					/ ((float) texture.getRegionHeight());
+			float width = height * ratio;
 
 			float x = cam.position.x - width / 2;
 			float y = cam.position.y - height / 2;
@@ -203,13 +218,12 @@ public class WorldRenderer {
 
 	}
 
-	private void drawFps()
-	{
-		BitmapFont font = new BitmapFont();
-		String fps = Gdx.graphics.getFramesPerSecond() + " fps";
-		float width = font.getBounds(fps).width;
-		font.draw(spriteBatch, fps, CAMERA_WIDTH - 1 - width, CAMERA_HEIGHT - 1);
-	}
+	// private void drawFps() {
+	// BitmapFont font = new BitmapFont();
+	// String fps = Gdx.graphics.getFramesPerSecond() + " fps";
+	// float width = font.getBounds(fps).width;
+	// font.draw(spriteBatch, fps, CAMERA_WIDTH - 1 - width, CAMERA_HEIGHT - 1);
+	// }
 
 	private void drawDebug() {
 		debugRenderer.setProjectionMatrix(cam.combined);
@@ -217,22 +231,25 @@ public class WorldRenderer {
 		debugRenderer.begin(ShapeType.Line);
 
 		// render blocks
-		for (Block block : world.getDrawableBlocks((int) CAMERA_WIDTH,
-				(int) CAMERA_HEIGHT)) {
+		for (Block block : world.getDrawableBlocks((int) (width / PPU),
+				(int) (height / PPU))) {
 			debugRenderer.setColor(new Color(1, 1, 1, 1));
-			debugRenderer.rect(block.x, block.y, block.width, block.height);
+			debugRenderer.rect(block.x * PPU, block.y * PPU, block.width * PPU,
+					block.height * PPU);
 		}
 
-		for (Item item : world.getDrawableItems((int) CAMERA_WIDTH,
-				(int) CAMERA_HEIGHT)) {
+		for (Item item : world.getDrawableItems((int) (width / PPU),
+				(int) (height / PPU))) {
 			debugRenderer.setColor(new Color(0, 1, 0, 1));
-			debugRenderer.rect(item.x, item.y, item.width, item.height);
+			debugRenderer.rect(item.x * PPU, item.y * PPU, item.width * PPU,
+					item.height * PPU);
 		}
 
 		// render The Dude
 		Dude dude = world.getDude();
 		debugRenderer.setColor(new Color(1, 0, 0, 1));
-		debugRenderer.rect(dude.x, dude.y, dude.width, dude.height);
+		debugRenderer.rect(dude.x * PPU, dude.y * PPU, dude.width * PPU,
+				dude.height * PPU);
 		debugRenderer.end();
 
 		debugRenderer.begin(ShapeType.Filled);
@@ -240,8 +257,8 @@ public class WorldRenderer {
 		// render collision blocks
 		debugRenderer.setColor(1, 1, 1, 1);
 		for (Rectangle collRect : world.getCollisionRects()) {
-			debugRenderer.rect(collRect.x, collRect.y, collRect.width,
-					collRect.height);
+			debugRenderer.rect(collRect.x * PPU, collRect.y * PPU,
+					collRect.width * PPU, collRect.height * PPU);
 		}
 
 		// render fps

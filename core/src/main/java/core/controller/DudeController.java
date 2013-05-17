@@ -27,7 +27,7 @@ public class DudeController {
 	private static final float GRAVITY = -20f;
 	private static final float MAX_JUMP_SPEED = 7f;
 	private static final float DAMP = 0.80f;
-	private static final float MAX_VEL = 4f;
+	private static final float MAX_VEL = 6f;
 
 	// these are temporary
 	private static final float WIDTH = 10f;
@@ -102,13 +102,12 @@ public class DudeController {
 
 		// Initial vertical acceleration
 		dude.getAcceleration().y = GRAVITY;
-		
+
 		// Debug
-		if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.NUM_4))
-		{
+		if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.NUM_4)) {
 			dude.getAcceleration().y = -GRAVITY;
 		}
-		
+
 		dude.getAcceleration().scl(delta);
 
 		// apply acc to vel
@@ -170,16 +169,11 @@ public class DudeController {
 			if (block == null)
 				continue;
 			if (dudeRect.overlaps(block)) {
-				// if (dude.getVelocity().x < 0)
-				// {
-				// dude.getPosition().x = (block.getBounds().x +
-				// block.getBounds().width + World.DELTA);
-				// }
-				// else
-				// {
-				// dude.getPosition().x = (block.getBounds().x -
-				// dude.getBounds().width - World.DELTA);
-				// }
+				if (dude.getVelocity().x < 0) {
+					dude.x = (block.x + block.width);
+				} else {
+					dude.x = (block.x - dude.width);
+				}
 				dude.getVelocity().x = 0;
 				world.getCollisionRects().add(block);
 				break;
