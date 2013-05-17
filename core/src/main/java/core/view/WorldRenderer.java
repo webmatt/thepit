@@ -55,9 +55,6 @@ public class WorldRenderer {
 		this.height = h;
 		this.minY = height * 0.3f;
 		this.maxY = height * 0.7f;
-		logger.debug(String.valueOf(height));
-		logger.debug(String.valueOf(minY));
-		logger.debug(String.valueOf(maxY));
 		cam.setToOrtho(false, w, h);
 	}
 

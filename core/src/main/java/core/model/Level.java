@@ -15,6 +15,7 @@ public class Level {
 	static int EMPTY = 0x00000000;
 	static int START_POSITION = 0xff0000ff; // RED
 	static int ITEM = 0x00ff00ff; // GREEN
+	static int BLOCK = 0xffffffff; // WHITE
 
 	private static final Logger logger = new Logger("Level", Logger.DEBUG);
 	private int width;
@@ -89,7 +90,7 @@ public class Level {
 		int flipY, color;
 		Set<Integer> colors = new HashSet<Integer>();
 		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < width; y++) {
+			for (int y = 0; y < height; y++) {
 				color = pm.getPixel(x, y);
 				colors.add(color);
 				if (color != EMPTY) {
@@ -109,7 +110,7 @@ public class Level {
 					{
 						items[x][flipY] = new Item(new Vector2(x, flipY), itemImage);
 					}
-					else
+					else if (color == BLOCK)
 					{
 						blocks[x][flipY] = new Block(new Vector2(x, flipY));
 					}
