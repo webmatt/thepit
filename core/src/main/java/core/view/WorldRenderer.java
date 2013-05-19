@@ -18,6 +18,11 @@ import core.model.Dude.State;
 import core.model.Item;
 import core.model.World;
 
+/**
+ * 
+ * @author Matthias Töws <mat.toews@gmail.com>
+ * 
+ */
 public class WorldRenderer {
 	private static final Logger logger = new Logger(
 			WorldRenderer.class.getCanonicalName(), Logger.DEBUG);
@@ -47,6 +52,8 @@ public class WorldRenderer {
 	private boolean debug = false;
 	private int width;
 	private int height;
+	private float levelHeight;
+	private float levelWidth;
 	private float minY;
 	private float maxY;
 
@@ -68,6 +75,8 @@ public class WorldRenderer {
 
 	public WorldRenderer(World world, boolean debug) {
 		this.world = world;
+		levelWidth = world.getLevel().getWidth() * PPU;
+		levelHeight = world.getLevel().getHeight() * PPU;
 		this.cam = new OrthographicCamera();
 		setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		setDebug(debug);
@@ -136,7 +145,7 @@ public class WorldRenderer {
 	 * change)
 	 */
 	private void updateCam() {
-		float x = (world.getLevel().getWidth() * PPU) / 2.0f;
+		float x = levelWidth / 2.0f;
 		float y = cam.position.y;
 		// Calculate the dudes position on the screen
 		float dudeY = (world.getDude().y * PPU) - y + (height / 2.0f);
@@ -151,7 +160,7 @@ public class WorldRenderer {
 		}
 
 		// clamp the camera to bottom resp. top of the level
-		y = Math.min(y, (world.getLevel().getHeight() * PPU) - height / 2.0f);
+		y = Math.min(y, levelHeight - height / 2.0f);
 		y = Math.max(y, height / 2.0f);
 
 		cam.position.set(x, y, 0);
@@ -159,8 +168,17 @@ public class WorldRenderer {
 	}
 
 	private void drawBackground() {
-//		spriteBatch.draw(background, cam.position.x - width / 2.0f,
-//				cam.position.y - height / 2.0f, width, height);
+		// This normalizes the camera y position to a range from 0.0 to 1.0 in
+		// the level,
+		// i obtained this formula through the last black magic session(just
+		// kidding, basic math :) )
+		// For detailled information how this works, ask the author.
+		float camYNormal = (cam.position.y - height / 2.0f)
+				/ (levelHeight - height);
+		float bgHeight = 1.5f * levelHeight;
+		float offset = bgHeight - levelHeight;
+		spriteBatch.draw(background, 0, camYNormal * offset * (-1), levelWidth,
+				bgHeight);
 	}
 
 	private void drawBlocks() {

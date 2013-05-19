@@ -12,10 +12,10 @@ import com.badlogic.gdx.utils.Logger;
 
 public class Level {
 
-	static int EMPTY = 0x00000000;
-	static int START_POSITION = 0xff0000ff; // RED
-	static int ITEM = 0x00ff00ff; // GREEN
-	static int BLOCK = 0xffffffff; // WHITE
+	public static int EMPTY = 0x00000000;
+	public static int START_POSITION = 0xff0000ff; // RED
+	public static int ITEM = 0x00ff00ff; // GREEN
+	public static int BLOCK = 0xffffffff; // WHITE
 
 	private static final Logger logger = new Logger("Level", Logger.DEBUG);
 	private int width;
@@ -117,6 +117,8 @@ public class Level {
 				}
 			}
 		}
+		
+		pm.dispose();
 
 		if (getStartPosition() == null) {
 			logger.error("No start position found in map");
@@ -124,9 +126,9 @@ public class Level {
 //			Gdx.app.exit();
 		}
 
-		String temp = "Different colors in map: ";
+		String temp = "Different colors in map:";
 		for (Integer c : colors) {
-			temp += "0x" + Integer.toHexString(c) + " ";
+			temp += " 0x" + Integer.toHexString(c);
 		}
 		logger.debug(temp);
 	}
