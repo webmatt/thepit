@@ -15,7 +15,7 @@ public class Level {
 	public static int EMPTY = 0x00000000;
 	public static int START_POSITION = 0xff0000ff; // RED
 	public static int ITEM = 0x00ff00ff; // GREEN
-	public static int BLOCK = 0xffffffff; // WHITE
+	public static int BLOCK = 0x000000ff; // BLACK
 
 	private static final Logger logger = new Logger("Level", Logger.DEBUG);
 	private int width;
