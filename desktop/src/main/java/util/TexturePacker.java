@@ -10,5 +10,4 @@ public class TexturePacker {
 	public static void main(String[] args) {
 		TexturePacker2.process("./assets/images", "./assets/images/textures", "textures.pack");
 	}
-
 }

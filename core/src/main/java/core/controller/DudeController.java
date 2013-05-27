@@ -104,7 +104,7 @@ public class DudeController {
 		dude.getAcceleration().y = GRAVITY;
 
 		// Debug
-		if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.NUM_4)) {
+		if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.NUM_5)) {
 			dude.getAcceleration().y = -GRAVITY;
 		}
 
