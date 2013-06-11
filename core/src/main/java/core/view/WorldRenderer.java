@@ -1,8 +1,10 @@
 package core.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -42,7 +44,11 @@ public class WorldRenderer {
 	private TextureRegion blockTexture;
 	private TextureRegion itemTexture;
 	private TextureRegion dudeFrame;
-	private TextureRegion background;
+	private Texture background;
+	
+	/** Sounds **/
+	private Music music1;
+	private Music music2;
 
 	/** Animations **/
 	private Animation walkLeftAnimation;
@@ -56,6 +62,7 @@ public class WorldRenderer {
 	private float levelWidth;
 	private float minY;
 	private float maxY;
+	private float camYNormal;
 
 	public void setSize(int w, int h) {
 		this.width = w;
@@ -82,6 +89,7 @@ public class WorldRenderer {
 		setDebug(debug);
 		spriteBatch = new SpriteBatch();
 		loadTextures();
+		loadMusic();
 	}
 
 	private void loadTextures() {
@@ -114,11 +122,18 @@ public class WorldRenderer {
 		walkRightAnimation = new Animation(RUNNING_FRAME_DURATION,
 				walkRightFrames);
 
-		background = atlas.findRegion("background");
+		background = new Texture(Gdx.files.internal("background.png"));
+	}
+	
+	private void loadMusic()
+	{
+		music1 = Gdx.audio.newMusic(Gdx.files.internal("sounds/sewer.mp3"));
+		music2 = Gdx.audio.newMusic(Gdx.files.internal("sounds/ambience.mp3"));
 	}
 
 	public void render() {
 		updateCam();
+		updateMusic();
 
 		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
@@ -165,17 +180,52 @@ public class WorldRenderer {
 
 		cam.position.set(x, y, 0);
 		cam.update();
-	}
+		
 
-	private void drawBackground() {
 		// This normalizes the camera y position to a range from 0.0 to 1.0 in
 		// the level,
 		// i obtained this formula through the last black magic session(just
 		// kidding, basic math :) )
 		// For detailled information how this works, ask the author.
-		float camYNormal = (cam.position.y - height / 2.0f)
+		camYNormal = (cam.position.y - height / 2.0f)
 				/ (levelHeight - height);
-		float bgHeight = 1.5f * levelHeight;
+	}
+	
+	private void updateMusic()
+	{
+		music1.pause();
+		music2.pause();
+		float volume;
+		Music music;
+		float position = camYNormal;
+		if (position < 0.5)
+		{
+			music = music1;
+		}
+		else 
+		{
+			music = music2;
+			position -= 0.5f;
+		}
+		music.setLooping(true);
+		if (position > 0.4)
+		{
+			volume = (0.5f - position) * 10;
+		}
+		else if (position < 0.1)
+		{
+			volume = position * 10;
+		}
+		else
+		{
+			volume = 1.0f;
+		}
+		music.setVolume(volume);
+		music.play();
+	}
+
+	private void drawBackground() {
+		float bgHeight = background.getHeight();
 		float offset = bgHeight - levelHeight;
 		spriteBatch.draw(background, 0, camYNormal * offset * (-1), levelWidth,
 				bgHeight);
