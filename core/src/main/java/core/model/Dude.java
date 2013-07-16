@@ -10,7 +10,7 @@ public class Dude extends Rectangle {
 		IDLE, WALKING, JUMPING
 	}
 
-	public static final float SIZE = 0.5f; // half a unit
+	public static final float SIZE = 0.8f; // half a unit
 
 	private Vector2 acceleration = new Vector2();
 	private Vector2 velocity = new Vector2();

@@ -33,7 +33,7 @@ import core.model.World;
 public class WorldRenderer {
 	private static final Logger logger = new Logger(
 			WorldRenderer.class.getCanonicalName(), Logger.DEBUG);
-	private static final float RUNNING_FRAME_DURATION = 0.10f;
+	private static final float RUNNING_FRAME_DURATION = 0.08f;
 	private static final float PPU = 30f; // Pixel per unit
 
 	private World world;
@@ -97,32 +97,32 @@ public class WorldRenderer {
 	private void loadTextures() {
 		atlas = new TextureAtlas(
 				Gdx.files.internal("images/textures/textures.pack"));
-		dudeIdleLeft = atlas.findRegion("dude_idle");
-		dudeIdleRight = new TextureRegion(dudeIdleLeft);
-		dudeIdleRight.flip(true, false);
+		dudeIdleRight = atlas.findRegion("dude_idle");
+		dudeIdleLeft = new TextureRegion(dudeIdleRight);
+		dudeIdleLeft.flip(true, false);
 
-		dudeFallLeft = atlas.findRegion("dude_fall");
-		dudeFallRight = new TextureRegion(dudeFallLeft);
-		dudeFallRight.flip(true, false);
+		dudeFallRight = atlas.findRegion("dude_fall");
+		dudeFallLeft = new TextureRegion(dudeFallRight);
+		dudeFallLeft.flip(true, false);
 
 		blockTexture = atlas.findRegion("block");
 		itemTexture = atlas.findRegion("item");
 
-		TextureRegion[] walkLeftFrames = new TextureRegion[6];
-		for (int i = 0; i < 6; i++) {
-			walkLeftFrames[i] = atlas.findRegion("dude_walk", i);
-		}
-		walkLeftAnimation = new Animation(RUNNING_FRAME_DURATION,
-				walkLeftFrames);
-
-		TextureRegion[] walkRightFrames = new TextureRegion[6];
-
-		for (int i = 0; i < 6; i++) {
-			walkRightFrames[i] = new TextureRegion(walkLeftFrames[i]);
-			walkRightFrames[i].flip(true, false);
+		TextureRegion[] walkRightFrames = new TextureRegion[15];
+		for (int i = 0; i < 15; i++) {
+			walkRightFrames[i] = atlas.findRegion("dudewalk", i);
 		}
 		walkRightAnimation = new Animation(RUNNING_FRAME_DURATION,
 				walkRightFrames);
+
+		TextureRegion[] walkLeftFrames = new TextureRegion[15];
+
+		for (int i = 0; i < 15; i++) {
+			walkLeftFrames[i] = new TextureRegion(walkRightFrames[i]);
+			walkLeftFrames[i].flip(true, false);
+		}
+		walkLeftAnimation = new Animation(RUNNING_FRAME_DURATION,
+				walkLeftFrames);
 
 		background = new Texture(Gdx.files.internal("background.png"));
 	}
