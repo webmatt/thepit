@@ -188,7 +188,8 @@ public class WorldRenderer {
 	}
 
 	private void drawBackground() {
-		float bgHeight = background.getHeight();
+//		float bgHeight = background.getHeight();
+		float bgHeight = levelHeight * 0.8f;
 		float offset = bgHeight - levelHeight;
 		spriteBatch.draw(background, 0, camYNormal * offset * (-1), levelWidth,
 				bgHeight);
