@@ -1,5 +1,7 @@
 package core.view;
 
+import java.util.Scanner;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -8,10 +10,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
 
 import core.model.Block;
@@ -37,6 +42,7 @@ public class WorldRenderer {
 	ShapeRenderer debugRenderer = new ShapeRenderer();
 
 	/** Textures **/
+	private TextureAtlas atlas;
 	private TextureRegion dudeIdleLeft;
 	private TextureRegion dudeIdleRight;
 	private TextureRegion dudeFallLeft;
@@ -46,9 +52,6 @@ public class WorldRenderer {
 	private TextureRegion dudeFrame;
 	private Texture background;
 	
-	/** Sounds **/
-	private Music music1;
-	private Music music2;
 
 	/** Animations **/
 	private Animation walkLeftAnimation;
@@ -89,11 +92,10 @@ public class WorldRenderer {
 		setDebug(debug);
 		spriteBatch = new SpriteBatch();
 		loadTextures();
-		loadMusic();
 	}
 
 	private void loadTextures() {
-		TextureAtlas atlas = new TextureAtlas(
+		atlas = new TextureAtlas(
 				Gdx.files.internal("images/textures/textures.pack"));
 		dudeIdleLeft = atlas.findRegion("dude_idle");
 		dudeIdleRight = new TextureRegion(dudeIdleLeft);
@@ -125,15 +127,9 @@ public class WorldRenderer {
 		background = new Texture(Gdx.files.internal("background.png"));
 	}
 	
-	private void loadMusic()
-	{
-		music1 = Gdx.audio.newMusic(Gdx.files.internal("sounds/sewer.mp3"));
-		music2 = Gdx.audio.newMusic(Gdx.files.internal("sounds/ambience.mp3"));
-	}
 
 	public void render() {
 		updateCam();
-		updateMusic();
 
 		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
@@ -189,39 +185,6 @@ public class WorldRenderer {
 		// For detailled information how this works, ask the author.
 		camYNormal = (cam.position.y - height / 2.0f)
 				/ (levelHeight - height);
-	}
-	
-	private void updateMusic()
-	{
-		music1.pause();
-		music2.pause();
-		float volume;
-		Music music;
-		float position = camYNormal;
-		if (position < 0.5)
-		{
-			music = music1;
-		}
-		else 
-		{
-			music = music2;
-			position -= 0.5f;
-		}
-		music.setLooping(true);
-		if (position > 0.4)
-		{
-			volume = (0.5f - position) * 10;
-		}
-		else if (position < 0.1)
-		{
-			volume = position * 10;
-		}
-		else
-		{
-			volume = 1.0f;
-		}
-		music.setVolume(volume);
-		music.play();
 	}
 
 	private void drawBackground() {
@@ -329,5 +292,10 @@ public class WorldRenderer {
 		// render fps
 		debugRenderer.end();
 
+	}
+
+	public void dispose() {
+		atlas.dispose();
+		background.dispose();
 	}
 }

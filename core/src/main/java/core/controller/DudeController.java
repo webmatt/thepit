@@ -130,6 +130,13 @@ public class DudeController {
 		if (dude.getVelocity().x < -MAX_VEL) {
 			dude.getVelocity().x = -MAX_VEL;
 		}
+		
+		// Debug
+		if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.NUM_4)) {
+			dude.getVelocity().y = 10;
+		}
+		
+
 
 		// update the dude's state time
 		dude.update(delta);
@@ -213,9 +220,11 @@ public class DudeController {
 		}
 
 		rectPool.free(dudeRect);
+		
 
 		// update the dudes position
 		dude.add(dude.getVelocity());
+		
 		//
 		// unscale velocity
 		dude.getVelocity().scl(1 / delta);
@@ -310,5 +319,9 @@ public class DudeController {
 
 		}
 		return false;
+	}
+
+	public void dispose() {
+		
 	}
 }

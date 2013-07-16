@@ -123,13 +123,17 @@ public class World {
 	}
 
 	public World() {
-		createDemoWorld();
+		createWorld();
 	}
 	
-	private void createDemoWorld()
+	private void createWorld()
 	{
 		level = new Level();
 		dude = new Dude(level.getStartPosition());
+	}
+
+	public void dispose() {
+		level.dispose();
 	}
 
 }

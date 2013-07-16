@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.utils.Logger;
 
 import core.controller.DudeController;
+import core.controller.AudioController;
 import core.model.World;
 import core.view.WorldRenderer;
 
@@ -18,12 +19,17 @@ public class GameScreen implements Screen, InputProcessor {
 
 	private World world;
 	private WorldRenderer renderer;
-	private DudeController controller;
+	private DudeController dudeController;
+	private AudioController musicController;
 
 	private int width, height;
 
 	@Override
 	public void dispose() {
+		musicController.dispose();
+		dudeController.dispose();
+		renderer.dispose();
+		world.dispose();
 	}
 
 	@Override
@@ -47,7 +53,8 @@ public class GameScreen implements Screen, InputProcessor {
 	public void show() {
 		world = new World();
 		renderer = new WorldRenderer(world, false);
-		controller = new DudeController(world);
+		dudeController = new DudeController(world);
+		musicController = new AudioController(world);
 		Gdx.input.setInputProcessor(this);
 	}
 
@@ -60,7 +67,8 @@ public class GameScreen implements Screen, InputProcessor {
 		// fps drops very low
 		delta = Math.min(CLAMP_DELTA, delta);
 
-		controller.update(delta);
+		dudeController.update(delta);
+		musicController.update(delta);
 		renderer.render();
 	}
 
@@ -76,13 +84,13 @@ public class GameScreen implements Screen, InputProcessor {
 	@Override
 	public boolean keyDown(int keycode) {
 		if (keycode == Keys.LEFT) {
-			controller.leftPressed();
+			dudeController.leftPressed();
 		}
 		if (keycode == Keys.RIGHT) {
-			controller.rightPressed();
+			dudeController.rightPressed();
 		}
 		if (keycode == Keys.SPACE || keycode == Keys.UP) {
-			controller.jumpPressed();
+			dudeController.jumpPressed();
 		}
 		return true;
 	}
@@ -90,18 +98,18 @@ public class GameScreen implements Screen, InputProcessor {
 	@Override
 	public boolean keyUp(int keycode) {
 		if (keycode == Keys.LEFT) {
-			controller.leftReleased();
+			dudeController.leftReleased();
 		} else if (keycode == Keys.RIGHT) {
-			controller.rightReleased();
+			dudeController.rightReleased();
 		} else if (keycode == Keys.SPACE || keycode == Keys.UP) {
-			controller.jumpReleased();
+			dudeController.jumpReleased();
 		}
 
 		// Debug keys
 		else if (keycode == Keys.NUM_1) {
 			renderer.setDebug(!renderer.isDebug());
 		} else if (keycode == Keys.NUM_2) {
-			logger.debug(controller.getDude().toString());
+			logger.debug(dudeController.getDude().toString());
 		} else if (keycode == Keys.NUM_3) {
 			world.getDude().x = world.getLevel().getStartPosition().x;
 			world.getDude().y = world.getLevel().getStartPosition().y;
@@ -119,35 +127,35 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (screenY < height / 2)
-		{
-			controller.jumpPressed();
-		}
-		else if (screenX < width / 2)
-		{
-			controller.leftPressed();
-		}
-		else
-		{
-			controller.rightPressed();
-		}
-		return true;
+//		if (screenY < height / 2)
+//		{
+//			controller.jumpPressed();
+//		}
+//		else if (screenX < width / 2)
+//		{
+//			controller.leftPressed();
+//		}
+//		else
+//		{
+//			controller.rightPressed();
+//		}
+		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (screenY < height / 2)
-		{
-			controller.jumpReleased();
-		}
-		else if (screenX < width / 2)
-		{
-			controller.leftReleased();
-		}
-		else
-		{
-			controller.rightReleased();
-		}
+//		if (screenY < height / 2)
+//		{
+//			controller.jumpReleased();
+//		}
+//		else if (screenX < width / 2)
+//		{
+//			controller.leftReleased();
+//		}
+//		else
+//		{
+//			controller.rightReleased();
+//		}
 		return false;
 	}
 
