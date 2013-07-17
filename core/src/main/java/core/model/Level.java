@@ -86,6 +86,7 @@ public class Level {
 
 	private void loadItemImages(String itemsFile) {
 		try {
+			logger.debug(itemsFile);
 			itemImages = new Array<TextureRegion>();
 			Scanner s = new Scanner(Gdx.files.internal(itemsFile).read());
 			atlas = new TextureAtlas(
@@ -94,6 +95,7 @@ public class Level {
 			TextureRegion image;
 			while (s.hasNext()) {
 				imageName = s.nextLine();
+				logger.debug(imageName);
 				image = atlas.findRegion(imageName);
 				if (image == null) {
 					logger.error("Cannot find image with name " + imageName);
@@ -120,8 +122,8 @@ public class Level {
 		int flipY, color;
 		int itemCount = 0;
 		Set<Integer> colors = new HashSet<Integer>();
-		for (int x = 0; x < width; x++) {
-			for (int y = (height - 1); y >= 0; y--) {
+		for (int y = (height - 1); y >= 0; y--) {
+			for (int x = 0; x < width; x++) {
 				color = pm.getPixel(x, y);
 				colors.add(color);
 				if (color != EMPTY) {
