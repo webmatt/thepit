@@ -1,22 +1,16 @@
 package core.view;
 
-import java.util.Scanner;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
 
 import core.model.Block;
@@ -33,7 +27,7 @@ import core.model.World;
 public class WorldRenderer {
 	private static final Logger logger = new Logger(
 			WorldRenderer.class.getCanonicalName(), Logger.DEBUG);
-	private static final float RUNNING_FRAME_DURATION = 0.08f;
+	private static final float RUNNING_FRAME_DURATION = 0.06f;
 	private static final float PPU = 30f; // Pixel per unit
 
 	private World world;
@@ -226,8 +220,11 @@ public class WorldRenderer {
 				dudeFrame = dude.isFacingLeft() ? dudeFallLeft : dudeFallRight;
 			}
 		}
-		spriteBatch.draw(dudeFrame, dude.x * PPU, dude.y * PPU, dude.width
-				* PPU, dude.height * PPU);
+		float x = (dude.x - 0.2f) * PPU;
+		float y = dude.y * PPU;
+		float width = (dude.width + 0.45f) * PPU;
+		float height = dude.height * PPU;
+		spriteBatch.draw(dudeFrame, x, y, width, height);
 	}
 
 	private void drawItemImage() {
@@ -259,20 +256,20 @@ public class WorldRenderer {
 
 		debugRenderer.begin(ShapeType.Line);
 
-		// render blocks
-		for (Block block : world.getDrawableBlocks((int) (width / PPU),
-				(int) (height / PPU))) {
-			debugRenderer.setColor(new Color(1, 1, 1, 1));
-			debugRenderer.rect(block.x * PPU, block.y * PPU, block.width * PPU,
-					block.height * PPU);
-		}
-
-		for (Item item : world.getDrawableItems((int) (width / PPU),
-				(int) (height / PPU))) {
-			debugRenderer.setColor(new Color(0, 1, 0, 1));
-			debugRenderer.rect(item.x * PPU, item.y * PPU, item.width * PPU,
-					item.height * PPU);
-		}
+//		// render blocks
+//		for (Block block : world.getDrawableBlocks((int) (width / PPU),
+//				(int) (height / PPU))) {
+//			debugRenderer.setColor(new Color(1, 1, 1, 1));
+//			debugRenderer.rect(block.x * PPU, block.y * PPU, block.width * PPU,
+//					block.height * PPU);
+//		}
+//
+//		for (Item item : world.getDrawableItems((int) (width / PPU),
+//				(int) (height / PPU))) {
+//			debugRenderer.setColor(new Color(0, 1, 0, 1));
+//			debugRenderer.rect(item.x * PPU, item.y * PPU, item.width * PPU,
+//					item.height * PPU);
+//		}
 
 		// render The Dude
 		Dude dude = world.getDude();

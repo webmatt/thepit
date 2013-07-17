@@ -3,14 +3,13 @@ package core.model;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import core.model.Dude.State;
-
 public class Dude extends Rectangle {
 	public enum State {
 		IDLE, WALKING, JUMPING
 	}
 
-	public static final float SIZE = 0.8f; // half a unit
+	public static final float WIDTH = 0.6f;
+	public static final float HEIGHT = 0.8f;
 
 	private Vector2 acceleration = new Vector2();
 	private Vector2 velocity = new Vector2();
@@ -64,7 +63,7 @@ public class Dude extends Rectangle {
 
 	public Dude(Vector2 position)
 	{
-		set(position.x, position.y, SIZE, SIZE);
+		set(position.x, position.y, WIDTH, HEIGHT);
 	}
 
 	public void update(float delta) {
