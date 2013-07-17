@@ -18,12 +18,14 @@ public class Level {
 	public static int EMPTY = 0x00000000;
 	public static int START_POSITION = 0xff0000ff; // RED
 	public static int ITEM = 0x00ff00ff; // GREEN
+	public static int FINISH_POSITION = 0x0000ffff; // BLUE
 	public static int BLOCK = 0x000000ff; // BLACK
 
 	private static final Logger logger = new Logger("Level", Logger.DEBUG);
 	private int width;
 	private int height;
 	private Vector2 startPosition;
+	private Vector2 finishPosition = null;
 	private Block[][] blocks;
 	private Item[][] items;
 	private TextureAtlas atlas;
@@ -73,46 +75,42 @@ public class Level {
 		return startPosition;
 	}
 
-	public Level() {
-		// loadDemoWorld();
-		loadItemImages();
-		loadImageWorld();
+	public Vector2 getFinishPosition() {
+		return finishPosition;
 	}
 
-	private void loadItemImages() {
-		try
-		{
+	public Level(String map, String itemsFile) {
+		loadItemImages(itemsFile);
+		loadImageWorld(map);
+	}
+
+	private void loadItemImages(String itemsFile) {
+		try {
 			itemImages = new Array<TextureRegion>();
-			Scanner s = new Scanner(Gdx.files.internal("items.txt").read());
+			Scanner s = new Scanner(Gdx.files.internal(itemsFile).read());
 			atlas = new TextureAtlas(
 					Gdx.files.internal("images/textures/textures.pack"));
 			String imageName;
 			TextureRegion image;
-			while (s.hasNext())
-			{
+			while (s.hasNext()) {
 				imageName = s.nextLine();
 				image = atlas.findRegion(imageName);
-				if (image == null)
-				{
+				if (image == null) {
 					logger.error("Cannot find image with name " + imageName);
-				}
-				else
-				{
+				} else {
 					itemImages.add(image);
 				}
 			}
-		}
-		catch (GdxRuntimeException e)
-		{
+		} catch (GdxRuntimeException e) {
 			logger.error("Error reading items.txt", e);
 			System.exit(-1);
 		}
-		
+
 	}
 
-	private void loadImageWorld() {
+	private void loadImageWorld(String map) {
 
-		Pixmap pm = new Pixmap(Gdx.files.internal("maps/main.png"));
+		Pixmap pm = new Pixmap(Gdx.files.internal("maps/" + map));
 		width = pm.getWidth();
 		height = pm.getHeight();
 		logger.debug("Map width: " + width);
@@ -130,20 +128,21 @@ public class Level {
 					flipY = height - 1 - y; // Pixmap starts topleft, our cam
 											// starts bottom left, so we gotta
 											// flip it
-					if (color == START_POSITION) {
+					if (color == BLOCK) {
+						blocks[x][flipY] = new Block(new Vector2(x, flipY));
+					} else if (color == ITEM) {
+						if (itemImages.size > itemCount) {
+							items[x][flipY] = new Item(new Vector2(x, flipY),
+									itemImages.get(itemCount++));
+						}
+					} else if (color == START_POSITION) {
 						if (startPosition != null) {
 							logger.error("Start position already set, but found another one (why?)");
 						} else {
 							startPosition = new Vector2(x, flipY);
 						}
-					} else if (color == ITEM) {
-						if (itemImages.size > itemCount)
-						{
-							items[x][flipY] = new Item(new Vector2(x, flipY),
-									itemImages.get(itemCount++));	
-						}
-					} else if (color == BLOCK) {
-						blocks[x][flipY] = new Block(new Vector2(x, flipY));
+					} else if (color == FINISH_POSITION) {
+						finishPosition = new Vector2(x, flipY);
 					}
 				}
 			}
@@ -196,4 +195,3 @@ public class Level {
 	// }
 
 }
-

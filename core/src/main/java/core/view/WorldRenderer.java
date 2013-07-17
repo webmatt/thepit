@@ -2,6 +2,7 @@ package core.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Logger;
 
@@ -28,12 +30,12 @@ public class WorldRenderer {
 	private static final Logger logger = new Logger(
 			WorldRenderer.class.getCanonicalName(), Logger.DEBUG);
 	private static final float RUNNING_FRAME_DURATION = 0.06f;
-	public static float ppu = 30f; // Pixel per unit
+	private float ppu = 30f; // Pixel per unit
 
 	private World world;
 	private OrthographicCamera cam;
 
-	ShapeRenderer debugRenderer = new ShapeRenderer();
+	ShapeRenderer shapeRenderer = new ShapeRenderer();
 
 	/** Textures **/
 	private TextureAtlas atlas;
@@ -76,6 +78,32 @@ public class WorldRenderer {
 	public void setDebug(boolean debug) {
 		this.debug = debug;
 	}
+	
+	public float getPpu()
+	{
+		return ppu;
+	}
+	
+	public void setPpu(float ppu)
+	{
+		this.ppu = ppu;
+		levelWidth = world.getLevel().getWidth() * ppu;
+		levelHeight = world.getLevel().getHeight() * ppu;
+	}
+	
+	public void loadBackground(String path)
+	{
+		background = new Texture(Gdx.files.internal(path));
+	}
+	
+	public void loadBlock(String regionName)
+	{
+		TextureRegion temp = atlas.findRegion(regionName);
+		if (temp != null)
+		{
+			blockTexture = temp;
+		}
+	}
 
 	public WorldRenderer(World world, boolean debug) {
 		this.world = world;
@@ -87,7 +115,7 @@ public class WorldRenderer {
 		spriteBatch = new SpriteBatch();
 		loadTextures();
 	}
-
+	
 	private void loadTextures() {
 		atlas = new TextureAtlas(
 				Gdx.files.internal("images/textures/textures.pack"));
@@ -118,7 +146,7 @@ public class WorldRenderer {
 		walkLeftAnimation = new Animation(RUNNING_FRAME_DURATION,
 				walkLeftFrames);
 
-		background = new Texture(Gdx.files.internal("background.png"));
+//		background = 
 	}
 	
 
@@ -143,6 +171,20 @@ public class WorldRenderer {
 		if (isDebug()) {
 			drawDebug();
 		}
+	}
+	
+	public void renderFade(float alpha)
+	{
+        Gdx.gl.glEnable(GL10.GL_BLEND); 
+        Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapeRenderer.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, width, height));
+		shapeRenderer.begin(ShapeType.Filled);
+		
+		shapeRenderer.setColor(1, 1, 1, alpha);
+		
+		shapeRenderer.rect(0, 0, width, height);
+		
+		shapeRenderer.end();
 	}
 
 	/**
@@ -182,6 +224,10 @@ public class WorldRenderer {
 	}
 
 	private void drawBackground() {
+		if (background == null)
+		{
+			return;
+		}
 //		float bgHeight = background.getHeight();
 		float bgHeight = levelHeight * 0.8f;
 		float offset = bgHeight - levelHeight;
@@ -252,9 +298,9 @@ public class WorldRenderer {
 	// }
 
 	private void drawDebug() {
-		debugRenderer.setProjectionMatrix(cam.combined);
+		shapeRenderer.setProjectionMatrix(cam.combined);
 
-		debugRenderer.begin(ShapeType.Line);
+		shapeRenderer.begin(ShapeType.Line);
 
 //		// render blocks
 //		for (Block block : world.getDrawableBlocks((int) (width / PPU),
@@ -273,22 +319,22 @@ public class WorldRenderer {
 
 		// render The Dude
 		Dude dude = world.getDude();
-		debugRenderer.setColor(new Color(1, 0, 0, 1));
-		debugRenderer.rect(dude.x * ppu, dude.y * ppu, dude.width * ppu,
+		shapeRenderer.setColor(new Color(1, 0, 0, 1));
+		shapeRenderer.rect(dude.x * ppu, dude.y * ppu, dude.width * ppu,
 				dude.height * ppu);
-		debugRenderer.end();
+		shapeRenderer.end();
 
-		debugRenderer.begin(ShapeType.Filled);
+		shapeRenderer.begin(ShapeType.Filled);
 
 		// render collision blocks
-		debugRenderer.setColor(1, 1, 1, 1);
+		shapeRenderer.setColor(1, 1, 1, 1);
 		for (Rectangle collRect : world.getCollisionRects()) {
-			debugRenderer.rect(collRect.x * ppu, collRect.y * ppu,
+			shapeRenderer.rect(collRect.x * ppu, collRect.y * ppu,
 					collRect.width * ppu, collRect.height * ppu);
 		}
 
 		// render fps
-		debugRenderer.end();
+		shapeRenderer.end();
 
 	}
 

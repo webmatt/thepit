@@ -122,13 +122,8 @@ public class World {
 		return items;
 	}
 
-	public World() {
-		createWorld();
-	}
-	
-	private void createWorld()
-	{
-		level = new Level();
+	public World(Level level) {
+		this.level = level;
 		dude = new Dude(level.getStartPosition());
 	}
 

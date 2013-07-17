@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Logger;
 
 import core.controller.DudeController;
 import core.controller.AudioController;
+import core.model.Level;
 import core.model.World;
 import core.view.WorldRenderer;
 
@@ -22,7 +23,8 @@ public class FinishScreen implements Screen, InputProcessor {
 	private DudeController dudeController;
 	private AudioController musicController;
 
-	private int width, height;
+	private boolean fadingIn;
+	private float alpha;
 
 	@Override
 	public void dispose() {
@@ -51,32 +53,54 @@ public class FinishScreen implements Screen, InputProcessor {
 
 	@Override
 	public void show() {
-		world = new World();
+		fadingIn = true;
+		alpha = 1.0f;
+
+		world = new World(new Level("finish.png", "items_finish.txt"));
 		renderer = new WorldRenderer(world, false);
+		renderer.setPpu(20);
+		renderer.loadBlock("block_finish");
 		dudeController = new DudeController(world);
 		musicController = new AudioController(world);
 		Gdx.input.setInputProcessor(this);
+		
+
+		Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);  
 	}
 
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
+		Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		// Clamp the delta time to prevent the dude falling through blocks when
 		// fps drops very low
 		delta = Math.min(CLAMP_DELTA, delta);
 
-		dudeController.update(delta);
+		if (!fadingIn)
+		{
+			dudeController.update(delta);
+		}
 		musicController.update(delta);
 		renderer.render();
+		if (fadingIn)
+		{
+			if (alpha <= 0.0f)
+			{
+				fadingIn = false;
+			}
+			else
+			{
+				renderer.renderFade(alpha);
+				alpha -= 0.01f;
+			}
+		}
 	}
 
 	@Override
 	public void resize(int width, int height) {
 		renderer.setSize(width, height);
-		this.width = width;
-		this.height = height;
 	}
 
 	// * InputProcessor methods ***************************//
@@ -113,10 +137,6 @@ public class FinishScreen implements Screen, InputProcessor {
 		} else if (keycode == Keys.NUM_3) {
 			world.getDude().x = world.getLevel().getStartPosition().x;
 			world.getDude().y = world.getLevel().getStartPosition().y;
-		} else if (keycode == Keys.NUM_6) {
-			renderer.ppu -= 1.0f;
-		} else if (keycode == Keys.NUM_7) {
-			renderer.ppu += 1.0f;
 		} else if (keycode == Keys.Q) {
 			Gdx.app.exit();
 		}
