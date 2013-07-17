@@ -7,13 +7,12 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.utils.Logger;
 
-import core.ThePit;
 import core.controller.DudeController;
 import core.controller.AudioController;
 import core.model.World;
 import core.view.WorldRenderer;
 
-public class GameScreen implements Screen, InputProcessor {
+public class FinishScreen implements Screen, InputProcessor {
 
 	private static final Logger logger = new Logger("ThePit", Logger.DEBUG);
 	private static final float CLAMP_DELTA = 0.2f;
@@ -22,15 +21,8 @@ public class GameScreen implements Screen, InputProcessor {
 	private WorldRenderer renderer;
 	private DudeController dudeController;
 	private AudioController musicController;
-	
-	private ThePit game;
 
 	private int width, height;
-	
-	public GameScreen(ThePit game)
-	{
-		this.game = game;
-	}
 
 	@Override
 	public void dispose() {
@@ -74,7 +66,7 @@ public class GameScreen implements Screen, InputProcessor {
 		// Clamp the delta time to prevent the dude falling through blocks when
 		// fps drops very low
 		delta = Math.min(CLAMP_DELTA, delta);
-		
+
 		dudeController.update(delta);
 		musicController.update(delta);
 		renderer.render();

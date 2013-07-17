@@ -104,7 +104,7 @@ public class Level {
 		}
 		catch (GdxRuntimeException e)
 		{
-			logger.error("No items.txt");
+			logger.error("Error reading items.txt", e);
 			System.exit(-1);
 		}
 		

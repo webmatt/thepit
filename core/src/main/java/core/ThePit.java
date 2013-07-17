@@ -12,6 +12,6 @@ public class ThePit extends Game {
 	public void create() {
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
-		setScreen(new GameScreen());
+		setScreen(new GameScreen(this));
 	}
 }

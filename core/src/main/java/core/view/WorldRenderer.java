@@ -28,7 +28,7 @@ public class WorldRenderer {
 	private static final Logger logger = new Logger(
 			WorldRenderer.class.getCanonicalName(), Logger.DEBUG);
 	private static final float RUNNING_FRAME_DURATION = 0.06f;
-	private static final float PPU = 30f; // Pixel per unit
+	public static float ppu = 30f; // Pixel per unit
 
 	private World world;
 	private OrthographicCamera cam;
@@ -79,8 +79,8 @@ public class WorldRenderer {
 
 	public WorldRenderer(World world, boolean debug) {
 		this.world = world;
-		levelWidth = world.getLevel().getWidth() * PPU;
-		levelHeight = world.getLevel().getHeight() * PPU;
+		levelWidth = world.getLevel().getWidth() * ppu;
+		levelHeight = world.getLevel().getHeight() * ppu;
 		this.cam = new OrthographicCamera();
 		setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		setDebug(debug);
@@ -153,7 +153,7 @@ public class WorldRenderer {
 		float x = levelWidth / 2.0f;
 		float y = cam.position.y;
 		// Calculate the dudes position on the screen
-		float dudeY = (world.getDude().y * PPU) - y + (height / 2.0f);
+		float dudeY = (world.getDude().y * ppu) - y + (height / 2.0f);
 
 		// Check if the dude reaches a boundary (currently 30 % from top resp.
 		// bottom9
@@ -190,18 +190,18 @@ public class WorldRenderer {
 	}
 
 	private void drawBlocks() {
-		for (Block block : world.getDrawableBlocks((int) (width / PPU),
-				(int) (height / PPU))) {
-			spriteBatch.draw(blockTexture, block.x * PPU, block.y * PPU,
-					block.width * PPU, block.height * PPU);
+		for (Block block : world.getDrawableBlocks((int) (width / ppu),
+				(int) (height / ppu))) {
+			spriteBatch.draw(blockTexture, block.x * ppu, block.y * ppu,
+					block.width * ppu, block.height * ppu);
 		}
 	}
 
 	private void drawItems() {
-		for (Item item : world.getDrawableItems((int) (width / PPU),
-				(int) (height / PPU))) {
-			spriteBatch.draw(itemTexture, item.x * PPU, item.y * PPU,
-					item.width * PPU, item.height * PPU);
+		for (Item item : world.getDrawableItems((int) (width / ppu),
+				(int) (height / ppu))) {
+			spriteBatch.draw(itemTexture, item.x * ppu, item.y * ppu,
+					item.width * ppu, item.height * ppu);
 		}
 	}
 
@@ -220,10 +220,10 @@ public class WorldRenderer {
 				dudeFrame = dude.isFacingLeft() ? dudeFallLeft : dudeFallRight;
 			}
 		}
-		float x = (dude.x - 0.2f) * PPU;
-		float y = dude.y * PPU;
-		float width = (dude.width + 0.45f) * PPU;
-		float height = dude.height * PPU;
+		float x = (dude.x - 0.2f) * ppu;
+		float y = dude.y * ppu;
+		float width = (dude.width + 0.45f) * ppu;
+		float height = dude.height * ppu;
 		spriteBatch.draw(dudeFrame, x, y, width, height);
 	}
 
@@ -274,8 +274,8 @@ public class WorldRenderer {
 		// render The Dude
 		Dude dude = world.getDude();
 		debugRenderer.setColor(new Color(1, 0, 0, 1));
-		debugRenderer.rect(dude.x * PPU, dude.y * PPU, dude.width * PPU,
-				dude.height * PPU);
+		debugRenderer.rect(dude.x * ppu, dude.y * ppu, dude.width * ppu,
+				dude.height * ppu);
 		debugRenderer.end();
 
 		debugRenderer.begin(ShapeType.Filled);
@@ -283,8 +283,8 @@ public class WorldRenderer {
 		// render collision blocks
 		debugRenderer.setColor(1, 1, 1, 1);
 		for (Rectangle collRect : world.getCollisionRects()) {
-			debugRenderer.rect(collRect.x * PPU, collRect.y * PPU,
-					collRect.width * PPU, collRect.height * PPU);
+			debugRenderer.rect(collRect.x * ppu, collRect.y * ppu,
+					collRect.width * ppu, collRect.height * ppu);
 		}
 
 		// render fps
